@@ -11,48 +11,45 @@ def main(cont):
     own = cont.owner
     pai = own.parent
     mouse = own.sensors["mov"]
-    
-    # Limites de rotação do eixo Z Global da Camera
-    limitE = -0.90 
-    limitD = 0.90
-    
-    sWidth = R.getWindowWidth()//2
-    mWidth = R.getWindowWidth()//4
-    x = (mouse.position[0] - sWidth)
-    buffer = 0
+    limits = {"e":-0.90,"d":0.90}
+    screen = {"s2":R.getWindowWidth()//2,"s4":R.getWindowWidth()//4}
+    x = (mouse.position[0] - screen["s2"])
+    sens = 0
     ori = own.worldOrientation.to_euler()
-    
-    # Imprime Localização do cursor e o valor de 1/4 da tela
-    
-    print("X:",+x)
-    print("m:",+mWidth)
-    
+        
     # Sensibilidade de acordo com posição do cursor
     
     if x > 0:
-        buffer = -0.03 # Sensibilidade
+        sens = -0.03
     elif x < 0:
-        buffer = 0.03
+        sens = 0.03
     else:
-        buffer = 0
+        sens = 0
         
     # Aplica rotação do pai se estiver dentro dos limites
     
-    if ((x < 0 and x < mWidth*-1) or (x > 0 and x > mWidth)) and not x == 0:   
-        if ori.z > limitE and ori.z < limitD:
-            pai.applyRotation([0,0,buffer], 1)
+    if ((x < 0 and x < screen["s4"]*-1) or (x > 0 and x > screen["s4"])) and x != 0:   
+        if ori.z > limits["e"] and ori.z < limits["d"]:
+            pai.applyRotation([0,0,sens], 1)
             if x < 0:
-                R.setMousePosition(mWidth, mouse.position[1])
+                R.setMousePosition(screen["s4"], mouse.position[1])
             elif x > 0:
-                R.setMousePosition(mWidth*3, mouse.position[1])
-            x = 0
+                R.setMousePosition(screen["s4"]*3, mouse.position[1])
+            x = (mouse.position[0] - screen["s2"])
             
     # Remover bugs automaticamente
         
-    if ori.z < limitE and buffer > 0:
-        pai.applyRotation([0,0,buffer], 1)
-    elif ori.z > limitD and buffer < 0:
-        pai.applyRotation([0,0,buffer], 1)
+    if ori.z < limits["e"] and sens > 0:
+        pai.applyRotation([0,0,sens], 1)
+    elif ori.z > limits["d"] and sens < 0:
+        pai.applyRotation([0,0,sens], 1)
+    
+    # Debug
+        
+    print("\ns4:",+screen["s4"]," - s4*-1:",+screen["s4"]*-1,"\nx:",+x,"\nsens:",+sens,"\nori:",+ori.z)
+        
+    
+    
         
     
     
